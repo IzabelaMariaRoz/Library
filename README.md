@@ -10,10 +10,10 @@ The Library Management System is a console-based application developed in C++ th
 4. View enrolled students: The admin can view the list of students registered in the system and their book balance
    
 # Student Functions:
-  1. Create an account: A new student can register by providing their roll number, name, address
+  1. Create an account: A new student can register by providing their id number, name, last name, address
   2. View balance: Students can view their book balance.
 
-Data storage: The system uses 2D arrays to store the details of students and books. Initially, 10 books are stored in the library. Each student account contains the roll number, balance and first name.
+Data storage: The system uses 2D arrays to store the details of students and books. Initially, 10 books are stored in the library and 7 students in the students array. Each student account contains the id number, balance and first name, last name and address.
 
 # File Management
   1. Books Database in txt file
