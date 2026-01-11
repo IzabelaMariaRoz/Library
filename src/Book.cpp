@@ -42,6 +42,7 @@ void searchByAuthorInFile(const string& filename, const string& authorQuery) {
     string line;
     bool found = false;
 
+
     while (getline(file, line)) {
         stringstream ss(line);
         string isbnStr, title, author, yearStr, quantityStr, borrowedStr;
