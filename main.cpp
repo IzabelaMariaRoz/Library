@@ -2,6 +2,7 @@
 #include <string> 
 #include <limits> // Potrzebne do czyszczenia bufora i numeric_limits
 #include <fstream>
+#include <map> //do szukania tytułów po autorze
 
 class Book {
 public:
@@ -68,6 +69,51 @@ public:
         }
         std::cout << "-----------------------\n";
     }
+    void AuthorSearch(std::string author = "") {
+        if (author == "") {
+            std::cout << "No author included.\n";
+            return;
+        }
+        
+        std::map<std::string, int> book_count;
+        std::string line;
+        std::ifstream file;
+        
+        file.open("books.txt", std::ios::in);
+
+        while (std::getline(file, line)) {
+            if (line.find(author) != std::string::npos) {
+                line.erase(line.find(author));
+                book_count[line]++;
+            }
+        }
+        std::cout << "We have " + std::to_string(book_count.size()) + " books made by " + author << std::endl;
+        for (auto const& [title, count] : book_count) {
+            std::cout << "- " << title << "(" << count << " copies)\n";
+        }
+        
+        file.close();
+    }
+
+    void TitleSearch(std::string title = "") {
+        if (title == "") {
+            std::cout << "No title included.\n";
+            return;
+        }
+        int book_count = 0;
+        std::string line;
+        std::ifstream file;
+        
+        file.open("books.txt", std::ios::in);
+        
+        while (std::getline(file, line)) {
+            if (line.find(title) != std::string::npos) 
+                book_count++;
+        }
+        file.close();
+        
+        std::cout << "We have " + std::to_string(book_count) + " copies of " + title << std::endl;
+    }
 };
 
 
@@ -84,14 +130,37 @@ int main() {
     // Menu
     bool running = true;
     int choice;
+    int role = 0;
+
+    std::cout << "\n-------------------------------LIBRARY SYSTEM-------------------------------\n";
+    std::cout << "Select Role:\n";
+    std::cout << "1. Administrator\n";
+    std::cout << "2. Student\n";
+    std::cout << "Choice: ";
+
+    while(!(std::cin >> role) || (role != 1 && role != 2)) {
+        std::cout << "Invalid role! Select 1 or 2: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
 
     while(running) {
         std::cout << "\n-------------------------------LIBRARY SYSTEM-------------------------------\n";
-        std::cout << "1. Add Book\n";
-        std::cout << "2. Add Student\n";
-        std::cout << "3. Borrow Book (Assign book to student)\n"; 
-        std::cout << "4. Check Student Balance\n";               
-        std::cout << "5. Exit\n";
+        if(role == 1) {
+            std::cout << "LOGGED AS: ADMIN\n";
+            std::cout << "1. Add Book\n";
+            std::cout << "2. Add Student\n";
+            std::cout << "3. Search By Author\n";
+            std::cout << "4. Search By Title\n";
+            std::cout << "5. Exit\n";
+        } else {
+            std::cout << "LOGGED AS: STUDENT\n";
+            std::cout << "1. Borrow Book (Assign book to student)\n"; 
+            std::cout << "2. Check Student Balance\n";               
+            std::cout << "3. Search By Author\n";
+            std::cout << "4. Search By Title\n";
+            std::cout << "5. Exit\n";
+        }
         std::cout << "Choose option: ";
         
         if(!(std::cin >> choice)) {
@@ -101,66 +170,96 @@ int main() {
             continue;
         }
 
-        switch(choice) {
-            case 1:
-                if (bookCount < MAX_BOOKS) {
-                    std::string title, author;
-                    int isbn, yearOfPublishing;
+        if(role == 1) {
+            switch(choice) {
+                case 1:
+                    if (bookCount < MAX_BOOKS) {
+                        std::string title, author;
+                        int isbn, yearOfPublishing;
 
-                    std::cin.ignore();
+                        std::cin.ignore();
 
-                    std::cout << "Enter title: ";
-                    std::getline(std::cin, title);
-                    std::cout << "Enter author: ";
-                    std::getline(std::cin, author);
-                    std::cout << "Enter ISBN: ";
-                    std::cin >> isbn;
-                    std::cout << "Enter year of publishing: ";
-                    std::cin >> yearOfPublishing;
+                        std::cout << "Enter title: ";
+                        std::getline(std::cin, title);
+                        std::cout << "Enter author: ";
+                        std::getline(std::cin, author);
+                        std::cout << "Enter ISBN: ";
+                        std::cin >> isbn;
+                        std::cout << "Enter year of publishing: ";
+                        std::cin >> yearOfPublishing;
 
-                    library[bookCount] = Book(title, author, isbn, yearOfPublishing);
-                    bookCount++;
-                    std::cout << "Book added successfully!\n";
+                        std::ofstream file;
+                        file.open("books.txt", std::ios::app);
+                        if(file.is_open()) {
+                            file << title << ";" << author << ";" << isbn << ";" << yearOfPublishing << "\n";
+                            file.close();
+                            std::cout << "Book saved to database (books.txt)!\n";
+                        }
+                    } else {
+                        std::cout << "Library is full!\n";
+                    }
+                    break;
+                case 2:
+                    if (studentCount < MAX_STUDENTS) {
+                        std::string n, l, a;
+                        int i;
 
-                } else {
-                    std::cout << "Library is full!\n";
-                }
-                break;
+                        std::cout << "Enter Name: ";
+                        std::cin >> n;
+                        std::cout << "Enter Last Name: ";
+                        std::cin >> l;
+                        std::cout << "Enter ID: ";
+                        std::cin >> i;
 
-            case 2:
-                if (studentCount < MAX_STUDENTS) {
-                    std::string n, l, a;
-                    int i;
+                        std::cin.ignore();
+                        std::cout << "Enter Address: ";
+                        std::getline(std::cin, a);
 
-                    std::cout << "Enter Name: ";
-                    std::cin >> n;
-                    std::cout << "Enter Last Name: ";
-                    std::cin >> l;
-                    std::cout << "Enter ID: ";
-                    std::cin >> i;
+                        students[studentCount] = Student(n, l, i, a);
+                        studentCount++;
+                        
+                        std::cout << "Student added successfully!\n";
+                    } else {
+                        std::cout << "Student list is full! Cannot add more.\n";
+                    }
+                    break;
 
-                    std::cin.ignore();
-                    std::cout << "Enter Address: ";
-                    std::getline(std::cin, a);
-
-                    students[studentCount] = Student(n, l, i, a);
-                    studentCount++;
+                case 3: { 
+                    std::string authorSearch;
+                    std::cout << "Enter author to search: ";
+                    std::cin.ignore(); 
+                    std::getline(std::cin, authorSearch);
                     
-                    std::cout << "Student added successfully!\n";
-                } else {
-                    std::cout << "Student list is full! Cannot add more.\n";
+                    Student tempSearcher; 
+                    tempSearcher.AuthorSearch(authorSearch);
+                    break;
                 }
-                break;
-
-            case 3:
-                {
+                case 4: { 
+                    std::string titleSearch;
+                    std::cout << "Enter title to search: ";
+                    std::cin.ignore();
+                    std::getline(std::cin, titleSearch);
+                    
+                    Student tempSearcher;
+                    tempSearcher.TitleSearch(titleSearch);
+                    break;
+                }
+                
+                case 5: 
+                    running = false;
+                    break;
+                
+                default: std::cout << "Invalid option!\n";
+            }
+        } else {
+            switch(choice) {
+                case 1: {
                     int sID, bISBN;
                     bool studentFound = false;
                     bool bookFound = false;
                     int studentIndex = -1;
-
                     std::cout << "Enter Student ID: ";
-                    std::cin >> sID;
+                    std::cin >> sID;    
 
                     for(int k=0; k < studentCount; k++) {
                         if(students[k].id == sID) {
@@ -178,7 +277,6 @@ int main() {
                     std::cout << "Enter Book ISBN to borrow: ";
                     std::cin >> bISBN;
 
-                    // (Opcjonalnie) Sprawdzenie czy książka istnieje w bibliotece
                     for(int k=0; k < bookCount; k++) {
                         if(library[k].isbn == bISBN) {
                             bookFound = true;
@@ -195,11 +293,9 @@ int main() {
                     } else {
                         std::cout << "Book with this ISBN does not exist in the library.\n";
                     }
+                    break;        
                 }
-                break;
-
-            case 4:
-                {
+                case 2: {
                     int sID;
                     bool found = false;
                     std::cout << "Enter Student ID to check: ";
@@ -213,15 +309,37 @@ int main() {
                         }
                     }
                     if(!found) std::cout << "Student not found.\n";
+                    break; 
                 }
-                break;
 
-            case 5:
-                running = false;
-                break;
+                case 3: { 
+                    std::string authorSearch;
+                    std::cout << "Enter author to search: ";
+                    std::cin.ignore(); 
+                    std::getline(std::cin, authorSearch);
+                    
+                    Student tempSearcher;
+                    tempSearcher.AuthorSearch(authorSearch);
+                    break;
+                }
+                case 4: { 
+                    std::string titleSearch;
+                    std::cout << "Enter title to search: ";
+                    std::cin.ignore();
+                    std::getline(std::cin, titleSearch);
+                    
+                    Student tempSearcher;
+                    tempSearcher.TitleSearch(titleSearch);
+                    break;
+                }
 
-            default:
-                std::cout << "Invalid option!\n";
+                case 5:
+                    running = false;
+                    break;
+
+                default:
+                    std::cout << "Invalid option!\n";
+            }
         }
     }
     return 0;
