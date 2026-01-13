@@ -1,344 +1,407 @@
 #include <iostream>
-#include <string> 
-#include <limits> // Potrzebne do czyszczenia bufora i numeric_limits
+#include <string>
 #include <fstream>
-#include <map> //do szukania tytułów po autorze
+#include <limits> // czyśczenie buforu
+
+using namespace std;
+
+class Person {
+public:
+    string firstName;
+    string lastName;
+
+    Person() {}
+    Person(string f, string l) {
+        firstName = f;
+        lastName = l;
+    }
+
+    virtual void introduce() = 0;
+};
 
 class Book {
 public:
-    std::string title;
-    std::string author;
+    class Date {
+    public:
+        int year;
+        Date() { year = 0; }
+        Date(int y) { year = y; }
+    };
+
+    string title;
+    string author;
     int isbn;
-    int yearOfPublishing;
+    Date publishDate; 
+    bool isBorrowed;
+    int borrowerId;   
 
-    Book() {}
+    Book() {
+        isbn = 0;
+        isBorrowed = false;
+        borrowerId = 0;
+    }
 
-    Book(std::string title, std::string author, int isbn, int yearOfPublishing) {
-        this->title = title;
-        this->author = author;
-        this->isbn = isbn;
-        this->yearOfPublishing = yearOfPublishing;
+    Book(string t, string a, int i, int y) {
+        title = t;
+        author = a;
+        isbn = i;
+        publishDate = Date(y);
+        isBorrowed = false;
+        borrowerId = 0;
     }
 };
 
-class Student {
-public: 
-    std::string name;
-    std::string lastName;
+class Student : public Person {
+public:
     int id;
-    std::string address;
-    
-    int borrowedBookISBNs[3]; 
+    string address;
+    int borrowedISBNs[3]; 
     int borrowedCount;
 
     Student() {
         borrowedCount = 0;
-        for(int i=0; i<3; i++) borrowedBookISBNs[i] = 0;
+        for(int i=0; i<3; i++) borrowedISBNs[i] = 0;
     }
 
-    Student(std::string name, std::string lastName, int id, std::string address) {
-        this->name = name;
-        this->lastName = lastName;
+    Student(string f, string l, int id, string a) : Person(f, l) {
         this->id = id;
-        this->address = address;
-        
+        this->address = a;
         this->borrowedCount = 0;
-        for(int i=0; i<3; i++) borrowedBookISBNs[i] = 0;
+        for(int k=0; k<3; k++) borrowedISBNs[k] = 0;
+    }
+
+    void introduce() override {
+        cout << "I am a student: " << firstName << " " << lastName << " (ID: " << id << ")" << endl;
     }
 
     bool borrowBook(int isbn) {
         if (borrowedCount < 3) {
-            borrowedBookISBNs[borrowedCount] = isbn;
+            borrowedISBNs[borrowedCount] = isbn;
             borrowedCount++;
             return true;
-        } else {
-            return false; 
         }
+        return false;
     }
-
-    void checkBalance() {
-        std::cout << "--- Student Balance ---\n";
-        std::cout << "Student: " << name << " " << lastName << " (ID: " << id << ")\n";
-        std::cout << "Books borrowed: " << borrowedCount << "/3\n";
+    
+    void showAccount() {
+        introduce(); 
+        cout << "Books borrowed: " << borrowedCount << "/3" << endl;
         if (borrowedCount > 0) {
-            std::cout << "Borrowed ISBNs: ";
-            for(int i = 0; i < borrowedCount; i++) {
-                std::cout << borrowedBookISBNs[i] << " ";
+            cout << "Borrowed ISBNs: ";
+            for(int i=0; i<borrowedCount; i++) {
+                cout << borrowedISBNs[i] << " ";
             }
-            std::cout << "\n";
+            cout << endl;
         }
-        std::cout << "-----------------------\n";
-    }
-    void AuthorSearch(std::string author = "") {
-        if (author == "") {
-            std::cout << "No author included.\n";
-            return;
-        }
-        
-        std::map<std::string, int> book_count;
-        std::string line;
-        std::ifstream file;
-        
-        file.open("books.txt", std::ios::in);
-
-        while (std::getline(file, line)) {
-            if (line.find(author) != std::string::npos) {
-                line.erase(line.find(author));
-                book_count[line]++;
-            }
-        }
-        std::cout << "We have " + std::to_string(book_count.size()) + " books made by " + author << std::endl;
-        for (auto const& [title, count] : book_count) {
-            std::cout << "- " << title << "(" << count << " copies)\n";
-        }
-        
-        file.close();
+        cout << "-----------------------" << endl;
     }
 
-    void TitleSearch(std::string title = "") {
-        if (title == "") {
-            std::cout << "No title included.\n";
-            return;
+    bool returnBook(int isbn) {
+    for (int i = 0; i < borrowedCount; i++) {
+        if (borrowedISBNs[i] == isbn) {
+            for (int j = i; j < borrowedCount - 1; j++) {
+                borrowedISBNs[j] = borrowedISBNs[j+1];
+            }
+            borrowedISBNs[borrowedCount - 1] = 0;
+            borrowedCount--;
+            return true;
         }
-        int book_count = 0;
-        std::string line;
-        std::ifstream file;
-        
-        file.open("books.txt", std::ios::in);
-        
-        while (std::getline(file, line)) {
-            if (line.find(title) != std::string::npos) 
-                book_count++;
-        }
-        file.close();
-        
-        std::cout << "We have " + std::to_string(book_count) + " copies of " + title << std::endl;
     }
+    return false;
+}
 };
 
+const int MAX_STUDENTS = 100;
+const int MAX_BOOKS = 100;
+
+Student students[MAX_STUDENTS];
+Book library[MAX_BOOKS];
+
+int studentCount = 0;
+int bookCount = 0;
+
+
+void saveData() {
+    ofstream bookFile("books.txt");
+    if (bookFile.is_open()) {
+        bookFile << bookCount << endl; 
+        for (int i = 0; i < bookCount; i++) {
+            bookFile << library[i].title << endl;
+            bookFile << library[i].author << endl;
+            bookFile << library[i].isbn << endl;
+            bookFile << library[i].publishDate.year << endl;
+            bookFile << library[i].isBorrowed << endl;
+            bookFile << library[i].borrowerId << endl;
+        }
+        bookFile.close();
+    }
+
+    ofstream studentFile("students.txt");
+    if (studentFile.is_open()) {
+        studentFile << studentCount << endl;
+        for (int i = 0; i < studentCount; i++) {
+            studentFile << students[i].firstName << endl;
+            studentFile << students[i].lastName << endl;
+            studentFile << students[i].id << endl;
+            studentFile << students[i].address << endl;
+            studentFile << students[i].borrowedCount << endl;
+            for(int j=0; j<3; j++) {
+                studentFile << students[i].borrowedISBNs[j] << endl;
+            }
+        }
+        studentFile.close();
+    }
+    cout << "[INFO] Data saved to files." << endl;
+}
+
+void loadData() {
+    ifstream bookFile("books.txt");
+    if (bookFile.is_open()) {
+        bookFile >> bookCount;
+        bookFile.ignore(); 
+        for (int i = 0; i < bookCount; i++) {
+            getline(bookFile, library[i].title);
+            getline(bookFile, library[i].author);
+            bookFile >> library[i].isbn;
+            bookFile >> library[i].publishDate.year;
+            bookFile >> library[i].isBorrowed;
+            bookFile >> library[i].borrowerId;
+            bookFile.ignore(); 
+        }
+        bookFile.close();
+    }
+
+    ifstream studentFile("students.txt");
+    if (studentFile.is_open()) {
+        studentFile >> studentCount;
+        studentFile.ignore();
+        for (int i = 0; i < studentCount; i++) {
+            getline(studentFile, students[i].firstName);
+            getline(studentFile, students[i].lastName);
+            studentFile >> students[i].id;
+            studentFile.ignore();
+            getline(studentFile, students[i].address);
+            studentFile >> students[i].borrowedCount;
+            for(int j=0; j<3; j++) {
+                studentFile >> students[i].borrowedISBNs[j];
+            }
+            studentFile.ignore();
+        }
+        studentFile.close();
+    }
+}
+
+void generateReport() {
+    ofstream report("report.txt");
+    report << "LIBRARY REPORT" << endl;
+    report << "Total Books: " << bookCount << endl;
+    report << "Total Students: " << studentCount << endl;
+    report << "--------------------------------" << endl;
+    report << "BORROWED BOOKS:" << endl;
+    
+    bool anyBorrowed = false;
+    for(int i=0; i<bookCount; i++) {
+        if(library[i].isBorrowed) {
+            report << "- " << library[i].title << " (ISBN: " << library[i].isbn << ") -> Student ID: " << library[i].borrowerId << endl;
+            anyBorrowed = true;
+        }
+    }
+    if(!anyBorrowed) report << "No books currently borrowed." << endl;
+    
+    report.close();
+    cout << "[INFO] Report generated (report.txt)." << endl;
+}
 
 int main() {
-    const int MAX_STUDENTS = 7; 
-    const int MAX_BOOKS = 10;
+    loadData();
 
-    Student students[MAX_STUDENTS]; 
-    Book library[MAX_BOOKS];
-
-    int studentCount = 0;
-    int bookCount = 0;
-
-    // Menu
     bool running = true;
-    int choice;
     int role = 0;
+    int choice;
 
-    std::cout << "\n-------------------------------LIBRARY SYSTEM-------------------------------\n";
-    std::cout << "Select Role:\n";
-    std::cout << "1. Administrator\n";
-    std::cout << "2. Student\n";
-    std::cout << "Choice: ";
-
-    while(!(std::cin >> role) || (role != 1 && role != 2)) {
-        std::cout << "Invalid role! Select 1 or 2: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    cout << "\n--- LIBRARY SYSTEM ---" << endl;
+    cout << "1. Administrator" << endl;
+    cout << "2. Student" << endl;
+    cout << "Select role: ";
+    
+    while(!(cin >> role) || (role != 1 && role != 2)) {
+        cout << "Invalid role! Select 1 or 2: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
     while(running) {
-        std::cout << "\n-------------------------------LIBRARY SYSTEM-------------------------------\n";
-        if(role == 1) {
-            std::cout << "LOGGED AS: ADMIN\n";
-            std::cout << "1. Add Book\n";
-            std::cout << "2. Add Student\n";
-            std::cout << "3. Search By Author\n";
-            std::cout << "4. Search By Title\n";
-            std::cout << "5. Exit\n";
-        } else {
-            std::cout << "LOGGED AS: STUDENT\n";
-            std::cout << "1. Borrow Book (Assign book to student)\n"; 
-            std::cout << "2. Check Student Balance\n";               
-            std::cout << "3. Search By Author\n";
-            std::cout << "4. Search By Title\n";
-            std::cout << "5. Exit\n";
+        cout << "\n--- MENU ---" << endl;
+        if(role == 1) { 
+            cout << "1. Add Book" << endl;
+            cout << "2. Add Student" << endl;
+            cout << "3. Search (Author)" << endl;
+            cout << "4. Generate Report" << endl;
+            cout << "5. Exit" << endl;
+        } else { 
+            cout << "1. Borrow Book" << endl;
+            cout << "2. Check My Account" << endl;
+            cout << "3. Search (Author)" << endl;
+            cout << "4. Search (Title)" << endl;
+            cout << "5. Return Book" << endl;
+            cout << "6. Exit" << endl;
         }
-        std::cout << "Choose option: ";
-        
-        if(!(std::cin >> choice)) {
-            std::cout << "Please enter a number!\n";
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            continue;
-        }
+        cout << "Choice: ";
+        cin >> choice;
 
-        if(role == 1) {
+        if(role == 1) { 
             switch(choice) {
-                case 1:
+                case 1: {
                     if (bookCount < MAX_BOOKS) {
-                        std::string title, author;
-                        int isbn, yearOfPublishing;
-
-                        std::cin.ignore();
-
-                        std::cout << "Enter title: ";
-                        std::getline(std::cin, title);
-                        std::cout << "Enter author: ";
-                        std::getline(std::cin, author);
-                        std::cout << "Enter ISBN: ";
-                        std::cin >> isbn;
-                        std::cout << "Enter year of publishing: ";
-                        std::cin >> yearOfPublishing;
-
-                        std::ofstream file;
-                        file.open("books.txt", std::ios::app);
-                        if(file.is_open()) {
-                            file << title << ";" << author << ";" << isbn << ";" << yearOfPublishing << "\n";
-                            file.close();
-                            std::cout << "Book saved to database (books.txt)!\n";
-                        }
-                    } else {
-                        std::cout << "Library is full!\n";
-                    }
-                    break;
-                case 2:
-                    if (studentCount < MAX_STUDENTS) {
-                        std::string n, l, a;
-                        int i;
-
-                        std::cout << "Enter Name: ";
-                        std::cin >> n;
-                        std::cout << "Enter Last Name: ";
-                        std::cin >> l;
-                        std::cout << "Enter ID: ";
-                        std::cin >> i;
-
-                        std::cin.ignore();
-                        std::cout << "Enter Address: ";
-                        std::getline(std::cin, a);
-
-                        students[studentCount] = Student(n, l, i, a);
-                        studentCount++;
+                        string t, a; int isbn, y;
+                        cin.ignore();
+                        cout << "Title: "; getline(cin, t);
+                        cout << "Author: "; getline(cin, a);
+                        cout << "ISBN: "; cin >> isbn;
+                        cout << "Year: "; cin >> y;
                         
-                        std::cout << "Student added successfully!\n";
-                    } else {
-                        std::cout << "Student list is full! Cannot add more.\n";
-                    }
+                        library[bookCount] = Book(t, a, isbn, y);
+                        bookCount++;
+                        saveData();
+                    } else cout << "Database full!\n";
                     break;
+                }
+                case 2: {
+                    if (studentCount < MAX_STUDENTS) {
+                        string fn, ln, ad; int id;
+                        cout << "First Name: "; cin >> fn;
+                        cout << "Last Name: "; cin >> ln;
+                        cout << "ID: "; cin >> id;
+                        cin.ignore();
+                        cout << "Address: "; getline(cin, ad);
 
-                case 3: { 
-                    std::string authorSearch;
-                    std::cout << "Enter author to search: ";
-                    std::cin.ignore(); 
-                    std::getline(std::cin, authorSearch);
-                    
-                    Student tempSearcher; 
-                    tempSearcher.AuthorSearch(authorSearch);
+                        students[studentCount] = Student(fn, ln, id, ad);
+                        studentCount++;
+                        saveData();
+                    } else cout << "Student list full!\n";
                     break;
                 }
-                case 4: { 
-                    std::string titleSearch;
-                    std::cout << "Enter title to search: ";
-                    std::cin.ignore();
-                    std::getline(std::cin, titleSearch);
-                    
-                    Student tempSearcher;
-                    tempSearcher.TitleSearch(titleSearch);
-                    break;
+                case 3: {
+                     string a; 
+                     cout << "Enter author: "; cin.ignore(); getline(cin, a);
+                     for(int i=0; i<bookCount; i++) {
+                         if(library[i].author == a) cout << "- " << library[i].title << endl;
+                     }
+                     break;
                 }
-                
-                case 5: 
+                case 4:
+                    generateReport();
+                    break;
+                case 5:
                     running = false;
                     break;
-                
-                default: std::cout << "Invalid option!\n";
+                default:
+                    cout << "Invalid option!\n";
             }
-        } else {
+        } else { 
             switch(choice) {
                 case 1: {
                     int sID, bISBN;
-                    bool studentFound = false;
-                    bool bookFound = false;
+                    cout << "Enter your ID: "; cin >> sID;
+                    
                     int studentIndex = -1;
-                    std::cout << "Enter Student ID: ";
-                    std::cin >> sID;    
+                    for(int i=0; i<studentCount; i++) {
+                        if(students[i].id == sID) { studentIndex = i; break; }
+                    }
 
-                    for(int k=0; k < studentCount; k++) {
-                        if(students[k].id == sID) {
-                            studentFound = true;
-                            studentIndex = k;
-                            break;
+                    if(studentIndex != -1) {
+                        cout << "Enter Book ISBN: "; cin >> bISBN;
+                        int bookIndex = -1;
+                        for(int i=0; i<bookCount; i++) {
+                            if(library[i].isbn == bISBN) { bookIndex = i; break; }
                         }
-                    }
 
-                    if(!studentFound) {
-                        std::cout << "Student not found!\n";
-                        break;
-                    }
-
-                    std::cout << "Enter Book ISBN to borrow: ";
-                    std::cin >> bISBN;
-
-                    for(int k=0; k < bookCount; k++) {
-                        if(library[k].isbn == bISBN) {
-                            bookFound = true;
-                            break;
-                        }
-                    }
-
-                    if(bookFound) {
-                        if(students[studentIndex].borrowBook(bISBN)) {
-                            std::cout << "Book borrowed successfully!\n";
-                        } else {
-                            std::cout << "Student has reached the limit of borrowed books (3)!\n";
-                        }
-                    } else {
-                        std::cout << "Book with this ISBN does not exist in the library.\n";
-                    }
-                    break;        
+                        if(bookIndex != -1) {
+                            if(!library[bookIndex].isBorrowed) {
+                                if(students[studentIndex].borrowBook(bISBN)) {
+                                    library[bookIndex].isBorrowed = true;
+                                    library[bookIndex].borrowerId = sID;
+                                    cout << "Success! Book borrowed.\n";
+                                    saveData();
+                                } else cout << "Limit reached (3 books)!\n";
+                            } else cout << "Book already borrowed!\n";
+                        } else cout << "Book with this ISBN not found.\n";
+                    } else cout << "Student not found.\n";
+                    break;
                 }
                 case 2: {
-                    int sID;
+                    int sID; cout << "Enter ID: "; cin >> sID;
                     bool found = false;
-                    std::cout << "Enter Student ID to check: ";
-                    std::cin >> sID;
-
-                    for(int k=0; k < studentCount; k++) {
-                        if(students[k].id == sID) {
-                            students[k].checkBalance();
+                    for(int i=0; i<studentCount; i++) {
+                        if(students[i].id == sID) {
+                            // Polymorphism demonstration [cite: 4]
+                            Person* personPtr = &students[i];
+                            personPtr->introduce(); 
+                            
+                            students[i].showAccount();
                             found = true;
                             break;
                         }
                     }
-                    if(!found) std::cout << "Student not found.\n";
-                    break; 
-                }
-
-                case 3: { 
-                    std::string authorSearch;
-                    std::cout << "Enter author to search: ";
-                    std::cin.ignore(); 
-                    std::getline(std::cin, authorSearch);
-                    
-                    Student tempSearcher;
-                    tempSearcher.AuthorSearch(authorSearch);
+                    if(!found) cout << "Student not found.\n";
                     break;
                 }
-                case 4: { 
-                    std::string titleSearch;
-                    std::cout << "Enter title to search: ";
-                    std::cin.ignore();
-                    std::getline(std::cin, titleSearch);
-                    
-                    Student tempSearcher;
-                    tempSearcher.TitleSearch(titleSearch);
+                case 3: {
+                    string a; 
+                    cout << "Enter author: "; cin.ignore(); getline(cin, a);
+                    for(int i=0; i<bookCount; i++) {
+                        if(library[i].author == a) cout << "- " << library[i].title << endl;
+                    }
                     break;
                 }
+                case 4: {
+                    string t;
+                    cout << "Enter title: "; cin.ignore(); getline(cin, t);
+                    for(int i=0; i<bookCount; i++) {
+                         if(library[i].title.find(t) != string::npos) 
+                            cout << "- " << library[i].title << " (" << library[i].author << ")\n";
+                    }
+                    break;
+                }
+                case 5: {
+                    int sID, bISBN;
+                    cout << "Enter your ID: "; cin >> sID;
 
-                case 5:
+                    int studentIndex = -1;
+                    for(int i=0; i<studentCount; i++) {
+                        if(students[i].id == sID) { studentIndex = i; break; }
+                    }
+
+                    if (studentIndex != -1) {
+                        cout << "Enter Book ISBN to return: "; cin >> bISBN;
+                        int bookIndex = -1;
+                        for(int i=0; i<bookCount; i++) {
+                            if(library[i].isbn == bISBN) { bookIndex = i; break; }
+                        }
+
+                        if (bookIndex != -1) {
+                            if (students[studentIndex].returnBook(bISBN)) {
+                                library[bookIndex].isBorrowed = false;
+                                library[bookIndex].borrowerId = 0;
+                                
+                                cout << "Success! Book returned.\n";
+                                saveData(); 
+                            } else {
+                                cout << "You generally don't have this book borrowed in your account.\n";
+                            }
+                        } else {
+                            cout << "Book with this ISBN does not exist in the library database.\n";
+                        }
+                    } else {
+                        cout << "Student not found.\n";
+                    }
+                    break;
+                }
+                case 6:
                     running = false;
                     break;
-
                 default:
-                    std::cout << "Invalid option!\n";
+                    cout << "Invalid option!\n";
             }
         }
     }
