@@ -1,7 +1,2 @@
-Krzyzacy Henryk Sienkiewicz
-Krzyzacy Henryk Sienkiewicz
-Krzyzacy Henryk Sienkiewicz
-Krzyzacy Henryk Sienkiewicz
-Pan Tadeusz Adam Mickiewicz 123
-Pan Tadeusz Adam Mickiewicz 123
-Pan Tadeusz Adam Mickiewicz 123
+12345;Ogniem i Mieczem;Henryk Sienkiewicz;1884;0;0
+9876;Lalka;Boleslaw Prus;1889;0;0
