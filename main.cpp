@@ -123,72 +123,75 @@ int bookCount = 0;
 
 void saveData() {
     ofstream bookFile("books.txt");
-    if (bookFile.is_open()) {
-        bookFile << bookCount << endl; 
-        for (int i = 0; i < bookCount; i++) {
-            bookFile << library[i].title << endl;
-            bookFile << library[i].author << endl;
-            bookFile << library[i].isbn << endl;
-            bookFile << library[i].publishDate.year << endl;
-            bookFile << library[i].isBorrowed << endl;
-            bookFile << library[i].borrowerId << endl;
+        if (bookFile.is_open()) {
+            for (int i = 0; i < bookCount; i++) {
+                bookFile << library[i].isbn << ";"
+                        << library[i].title << ";"
+                        << library[i].author << ";"
+                        << library[i].publishDate.year << ";"
+                        << library[i].isBorrowed << ";"
+                        << library[i].borrowerId << endl;
+            }
+            bookFile.close();
         }
-        bookFile.close();
-    }
 
     ofstream studentFile("students.txt");
-    if (studentFile.is_open()) {
-        studentFile << studentCount << endl;
-        for (int i = 0; i < studentCount; i++) {
-            studentFile << students[i].firstName << endl;
-            studentFile << students[i].lastName << endl;
-            studentFile << students[i].id << endl;
-            studentFile << students[i].address << endl;
-            studentFile << students[i].borrowedCount << endl;
-            for(int j=0; j<3; j++) {
-                studentFile << students[i].borrowedISBNs[j] << endl;
+        if (studentFile.is_open()) {
+            for (int i = 0; i < studentCount; i++) {
+                studentFile << students[i].id << ";"
+                            << students[i].firstName << ";"
+                            << students[i].lastName << ";"
+                            << students[i].address << ";"
+                            << students[i].borrowedCount << ";";
+                
+                for(int j=0; j<3; j++) {
+                    studentFile << students[i].borrowedISBNs[j];
+                    if(j < 2) studentFile << ";"; 
+                }
+                studentFile << endl;
             }
+            studentFile.close();
         }
-        studentFile.close();
-    }
     cout << "[INFO] Data saved to files." << endl;
 }
 
 void loadData() {
-    ifstream bookFile("books.txt");
+ifstream bookFile("books.txt");
+    bookCount = 0;
     if (bookFile.is_open()) {
-        bookFile >> bookCount;
-        bookFile.ignore(); 
-        for (int i = 0; i < bookCount; i++) {
-            getline(bookFile, library[i].title);
-            getline(bookFile, library[i].author);
-            bookFile >> library[i].isbn;
-            bookFile >> library[i].publishDate.year;
-            bookFile >> library[i].isBorrowed;
-            bookFile >> library[i].borrowerId;
+        while (bookCount < MAX_BOOKS && bookFile >> library[bookCount].isbn) {
             bookFile.ignore(); 
+            getline(bookFile, library[bookCount].title, ';');
+            getline(bookFile, library[bookCount].author, ';');
+            bookFile >> library[bookCount].publishDate.year;
+            bookFile.ignore(); 
+            bookFile >> library[bookCount].isBorrowed;
+            bookFile.ignore(); 
+            bookFile >> library[bookCount].borrowerId;
+            bookFile.ignore(); 
+            bookCount++; 
         }
         bookFile.close();
     }
 
     ifstream studentFile("students.txt");
-    if (studentFile.is_open()) {
-        studentFile >> studentCount;
-        studentFile.ignore();
-        for (int i = 0; i < studentCount; i++) {
-            getline(studentFile, students[i].firstName);
-            getline(studentFile, students[i].lastName);
-            studentFile >> students[i].id;
-            studentFile.ignore();
-            getline(studentFile, students[i].address);
-            studentFile >> students[i].borrowedCount;
-            for(int j=0; j<3; j++) {
-                studentFile >> students[i].borrowedISBNs[j];
+        studentCount = 0;
+        if (studentFile.is_open()) {
+            while (studentCount < MAX_STUDENTS && studentFile >> students[studentCount].id) {
+                studentFile.ignore();
+                getline(studentFile, students[studentCount].firstName, ';');
+                getline(studentFile, students[studentCount].lastName, ';');
+                getline(studentFile, students[studentCount].address, ';');
+                studentFile >> students[studentCount].borrowedCount;
+                studentFile.ignore(); 
+                for(int j=0; j<3; j++) {
+                    studentFile >> students[studentCount].borrowedISBNs[j];
+                    studentFile.ignore(); 
+                }
+                studentCount++;
             }
-            studentFile.ignore();
+            studentFile.close();
         }
-        studentFile.close();
-    }
 }
 
 void generateReport() {
@@ -334,7 +337,6 @@ int main() {
                     bool found = false;
                     for(int i=0; i<studentCount; i++) {
                         if(students[i].id == sID) {
-                            // Polymorphism demonstration [cite: 4]
                             Person* personPtr = &students[i];
                             personPtr->introduce(); 
                             
