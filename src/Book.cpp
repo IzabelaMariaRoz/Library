@@ -3,6 +3,18 @@
 #include <sstream>
 using namespace std;
 
+bool borrow(){
+    if(borrowedCount<quantity){
+        borrowedCount++;
+        return true;
+    }
+    return false;
+}
+
+void returnBook(){
+    if(borrowedCount>0) borrowedCount--;
+}
+
 void searchByTitleInFile(const string& filename, const string& titleQuery) {
     ifstream file(filename);
     if (!file.is_open()) {

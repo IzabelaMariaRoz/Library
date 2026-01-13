@@ -10,7 +10,7 @@ private:
     int isbn;
     int yearOfPublishing;
     int quantity;        //ile egze. biblioteka posiada
-    int borrowedCout;    //aktualnie wypożyczonych
+    int borrowedCount;    //aktualnie wypożyczonych
 
 public:
     // Konstruktor domyślny
@@ -30,22 +30,10 @@ public:
     int getBorrowedCount() const { return borrowedCount; }
     int getAvailable() const{return quantity - borrowedCount;}
 
-
-    //wypożyczanie książki
-    bool borrow(){
-        if(borrowedCount<quantity){
-            borrowedCount++;
-            return true;
-        }
-        return false;
-    }
-
-    //zwracanie
-    void returnBook(){
-        if(borrowedCount>0) borrowedCount--;
-    }
+    bool borrow();
+    void returnBook();
+    void searchByTitleInFile(const string& filename, const string& titleQuery);
+    void searchByAuthorInFile(const string& filename, const string& authorQuery);
 
 
-    string serialize() const;
-    void deserialize(const string& data);
 };
