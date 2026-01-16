@@ -1,45 +1,74 @@
 #include "Library.hpp"
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
+Library::Library() : bookCount(0), studentCount(0) {}
 
-void Library::addBook(const Book& book)
-{
-    // TODO: implementacja
+void Library::saveData() {
+    std::ofstream bookFile("books.txt");
+    for(int i=0;i<bookCount;i++) {
+        bookFile << books[i].isbn << ";" << books[i].title << ";"
+                 << books[i].author << ";" << books[i].publishDate.year << ";"
+                 << books[i].isBorrowed << ";" << books[i].borrowerId << "\n";
+    }
+    bookFile.close();
+
+    std::ofstream studentFile("students.txt");
+    for(int i=0;i<studentCount;i++) {
+        studentFile << students[i].id << ";" << students[i].firstName << ";"
+                    << students[i].lastName << ";" << students[i].address << "\n";
+    }
+    studentFile.close();
 }
 
-void Library::addStudent(const Student& student)
-{
-    // TODO: implementacja
+void Library::loadData() {
+    std::ifstream bookFile("books.txt");
+    if(bookFile.is_open()) {
+        while(bookFile >> books[bookCount].isbn) {
+            bookFile.ignore();
+            std::getline(bookFile, books[bookCount].title, ';');
+            std::getline(bookFile, books[bookCount].author, ';');
+            bookFile >> books[bookCount].publishDate.year;
+            bookFile.ignore();
+            bookFile >> books[bookCount].isBorrowed;
+            bookFile.ignore();
+            bookFile >> books[bookCount].borrowerId;
+            bookCount++;
+        }
+        bookFile.close();
+    }
+
+    std::ifstream studentFile("students.txt");
+    if(studentFile.is_open()) {
+        while(studentFile >> students[studentCount].id) {
+            studentFile.ignore();
+            std::getline(studentFile, students[studentCount].firstName, ';');
+            std::getline(studentFile, students[studentCount].lastName, ';');
+            std::getline(studentFile, students[studentCount].address);
+            studentCount++;
+        }
+        studentFile.close();
+    }
 }
 
-bool Library::borrowBook(int studentID, int bookISBN)
-{
-    // TODO: implementacja
-    return false;
-}
+void Library::generateReport() {
+    std::ofstream report("report.txt");
+    report << "LIBRARY REPORT\n";
+    report << "Total Books: " << bookCount << "\n";
+    report << "Total Students: " << studentCount << "\n";
+    report << "--------------------------------\n";
+    report << "BORROWED BOOKS:\n";
 
-void Library::checkStudentBalance(int studentID) const
-{
-    // TODO: implementacja
-}
+    bool anyBorrowed = false;
+    for(int i=0;i<bookCount;i++) {
+        if(books[i].isBorrowed) {
+            report << "- " << books[i].title << " (ISBN: " << books[i].isbn
+                   << ") -> Student ID: " << books[i].borrowerId << "\n";
+            anyBorrowed = true;
+        }
+    }
+    if(!anyBorrowed) report << "No books currently borrowed.\n";
+    report.close();
 
-void Library::loadBooks(const std::string& filename)
-{
-    // TODO: implementacja
-}
-
-void Library::saveBooks(const std::string& filename) const
-{
-    // TODO: implementacja
-}
-
-void Library::loadStudents(const std::string& filename)
-{
-    // TODO: implementacja
-}
-
-void Library::saveStudents(const std::string& filename) const
-{
-    // TODO: implementacja
+    std::cout << "[INFO] Report generated (report.txt).\n";
 }

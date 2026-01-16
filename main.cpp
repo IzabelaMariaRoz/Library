@@ -121,78 +121,7 @@ int studentCount = 0;
 int bookCount = 0;
 
 
-void saveData() {
-    ofstream bookFile("books.txt");
-        if (bookFile.is_open()) {
-            for (int i = 0; i < bookCount; i++) {
-                bookFile << library[i].isbn << ";"
-                        << library[i].title << ";"
-                        << library[i].author << ";"
-                        << library[i].publishDate.year << ";"
-                        << library[i].isBorrowed << ";"
-                        << library[i].borrowerId << endl;
-            }
-            bookFile.close();
-        }
 
-    ofstream studentFile("students.txt");
-        if (studentFile.is_open()) {
-            for (int i = 0; i < studentCount; i++) {
-                studentFile << students[i].id << ";"
-                            << students[i].firstName << ";"
-                            << students[i].lastName << ";"
-                            << students[i].address << ";"
-                            << students[i].borrowedCount << ";";
-                
-                for(int j=0; j<3; j++) {
-                    studentFile << students[i].borrowedISBNs[j];
-                    if(j < 2) studentFile << ";"; 
-                }
-                studentFile << endl;
-            }
-            studentFile.close();
-        }
-    cout << "[INFO] Data saved to files." << endl;
-}
-
-void loadData() {
-ifstream bookFile("books.txt");
-    bookCount = 0;
-    if (bookFile.is_open()) {
-        while (bookCount < MAX_BOOKS && bookFile >> library[bookCount].isbn) {
-            bookFile.ignore(); 
-            getline(bookFile, library[bookCount].title, ';');
-            getline(bookFile, library[bookCount].author, ';');
-            bookFile >> library[bookCount].publishDate.year;
-            bookFile.ignore(); 
-            bookFile >> library[bookCount].isBorrowed;
-            bookFile.ignore(); 
-            bookFile >> library[bookCount].borrowerId;
-            bookFile.ignore(); 
-            bookCount++; 
-        }
-        bookFile.close();
-    }
-
-    ifstream studentFile("students.txt");
-        studentCount = 0;
-        if (studentFile.is_open()) {
-            while (studentCount < MAX_STUDENTS && studentFile >> students[studentCount].id) {
-                studentFile.ignore();
-                getline(studentFile, students[studentCount].firstName, ';');
-                getline(studentFile, students[studentCount].lastName, ';');
-                getline(studentFile, students[studentCount].address, ';');
-                studentFile >> students[studentCount].borrowedCount;
-                studentFile.ignore(); 
-                for(int j=0; j<3; j++) {
-                    studentFile >> students[studentCount].borrowedISBNs[j];
-                    studentFile.ignore(); 
-                }
-                studentCount++;
-            }
-            studentFile.close();
-        }
-}
 
 void generateReport() {
     ofstream report("report.txt");

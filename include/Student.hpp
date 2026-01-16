@@ -1,25 +1,19 @@
 #pragma once
-#include <string>
-#include <vector>
+#include "Person.hpp"
+#include <iostream>
 
-class Student {
-private:
-    std::string name;
-    std::string lastName;
+class Student : public Person {
+public:
     int id;
     std::string address;
-    std::vector<int> borrowedBooks;
+    int borrowedISBNs[3];
+    int borrowedCount;
 
-public:
     Student();
-    Student(const std::string& name, const std::string& lastName, int id, const std::string& address);
+    Student(const std::string& f, const std::string& l, int id, const std::string& address);
 
-    std::string getFullName() const;
-    int getId() const;
-    void borrowBook(int isbn);
-    bool canBorrow() const;
-    void checkBalance() const;
-
-    std::string serialize() const;
-    void deserialize(const std::string& data);
+    void introduce() override;
+    bool borrowBook(int isbn);
+    bool returnBook(int isbn);
+    void showAccount();
 };

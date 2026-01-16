@@ -1,0 +1,2 @@
+2137;Jan;Kowalski;Uliczna 1;0;0;0;0
+9872;Anna;Nowak;Uliczna 2;0;0;0;0
