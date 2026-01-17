@@ -1,2 +1,0 @@
-12345;Ogniem i Mieczem;Henryk Sienkiewicz;1884;0;0
-9876;Lalka;Boleslaw Prus;1889;0;0
