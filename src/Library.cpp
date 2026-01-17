@@ -5,7 +5,7 @@
 Library::Library() : bookCount(0), studentCount(0) {}
 
 void Library::saveData() {
-    std::ofstream bookFile("books.txt");
+    std::ofstream studentFile("../data/books.txt", ios::app);
     for(int i=0;i<bookCount;i++) {
         bookFile << books[i].isbn << ";" << books[i].title << ";"
                  << books[i].author << ";" << books[i].publishDate.year << ";"
@@ -13,7 +13,7 @@ void Library::saveData() {
     }
     bookFile.close();
 
-    std::ofstream studentFile("students.txt");
+    std::ofstream studentFile("../data/students.txt", ios::app);
     for(int i=0;i<studentCount;i++) {
         studentFile << students[i].id << ";" << students[i].firstName << ";"
                     << students[i].lastName << ";" << students[i].address << "\n";
@@ -22,7 +22,7 @@ void Library::saveData() {
 }
 
 void Library::loadData() {
-    std::ifstream bookFile("books.txt");
+    std::ifstream bookFile("../data/books.txt");
     if(bookFile.is_open()) {
         while(bookFile >> books[bookCount].isbn) {
             bookFile.ignore();
@@ -38,7 +38,7 @@ void Library::loadData() {
         bookFile.close();
     }
 
-    std::ifstream studentFile("students.txt");
+    std::ifstream studentFile("../data/students.txt");
     if(studentFile.is_open()) {
         while(studentFile >> students[studentCount].id) {
             studentFile.ignore();
@@ -52,7 +52,7 @@ void Library::loadData() {
 }
 
 void Library::generateReport() {
-    std::ofstream report("report.txt");
+    std::ofstream report("../data/report.txt");
     report << "LIBRARY REPORT\n";
     report << "Total Books: " << bookCount << "\n";
     report << "Total Students: " << studentCount << "\n";
