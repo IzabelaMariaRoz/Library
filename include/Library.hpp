@@ -5,7 +5,7 @@
 
 class Library {
 public:
-    static const int MAX_BOOKS = 100;
+    static const int MAX_BOOKS = 100; //wartosc globalna dla wszystkich studentow np
     static const int MAX_STUDENTS = 100;
 
     Book books[MAX_BOOKS];
@@ -13,9 +13,9 @@ public:
     int bookCount;
     int studentCount;
 
-    Library();
+    Library(); //konst
 
-    void saveData();
+    void saveData(); //metody
     void loadData();
     void generateReport();
 };

@@ -7,7 +7,7 @@ public:
     std::string firstName;
     std::string lastName;
 
-    Person() {}
+    Person() {} //konstruktor
     Person(const std::string& f, const std::string& l) 
         : firstName(f), lastName(l) {}
 

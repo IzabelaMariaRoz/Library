@@ -1,6 +1,6 @@
 #include "Book.hpp"
 
-Book::Book() {
+Book::Book() {  //kostruktor klasy book poza klasa
     isbn = 0;
     isBorrowed = false;
     borrowerId = 0;

@@ -16,6 +16,7 @@ void Student::introduce() {
               << " (ID: " << id << ")" << std::endl;
 }
 
+//dodaje na koncu tablicy borrowedISBNs isbn ksiazki do wypozyczenia
 bool Student::borrowBook(int isbn) {
     if (borrowedCount < 3) {
         borrowedISBNs[borrowedCount++] = isbn;
@@ -24,6 +25,8 @@ bool Student::borrowBook(int isbn) {
     return false;
 }
 
+//Znajduje w tablicy borrowedISBNs isbn ksiazku do usuniecia i go usuwa
+//zwraca true jesli sie powiodlo
 bool Student::returnBook(int isbn) {
     for (int i = 0; i < borrowedCount; i++) {
         if (borrowedISBNs[i] == isbn) {
