@@ -188,7 +188,10 @@ int main() {
                 std::cout << "\n--- STUDENT MENU ---\n";
                 std::cout << "1. Borrow a Book"
                           << "\n2. Return Book"
-                          << "\n3. Exit"
+                          << "\n3. Check My Account"
+                          << "\n4. Search (Author)"
+                          << "\n5. Search (Title)"
+                          << "\n6. Exit"
                           << "\nChoice: ";
                 std::cin >> choice;
 
@@ -235,16 +238,49 @@ int main() {
                         }
                         break;
                     }
+                    case 3: {
+                        int sID; std::cout << "Enter ID: "; cin >> sID;
+                        bool found = false;
+                        for(int i=0; i<lib.studentCount; i++) {
+                            if(lib.students[i].id == sID) {
+                                Person* personPtr = &students[i];
+                                personPtr->introduce(); 
+                                
+                                students[i].showAccount();
+                                found = true;
+                                break;
+                            }
+                    }
+                }
+                case 4: {
+                    std::string a; 
+                    std::cout << "Enter author: "; cin.ignore(); getline(cin, a);
+                    for(int i=0; i<lib.bookCount; i++) {
+                        if(lib.books[i].author == a) std::cout << "- " << lib.books[i].title << endl;
+                    }
+                    break;
+                }
+                case 5: {
+                    std::string t;
+                    std::cout << "Enter title: "; cin.ignore(); getline(cin, t);
+                    for(int i=0; i<lib.bookCount; i++) {
+                         if(lib.books[i].title.find(t) != string::npos) 
+                            std::cout << "- " << lib.books[i].title << " (" << lib.books[i].author << ")\n";
+                    }
+                    break;
+                }
 
-                    case 3:
+                    case 6:
                         std::cout << "[INFO] Goodbye!\n";
                         break;
 
                     default:
                         std::cout << "[!] Incorrect selection.\n";
                 }
+                if(!found) std::cout << "Student not found.\n";
+                    break;
 
-            } while (choice != 3);
+            } while (choice != 6);
 
             lib.saveData();
             break; // po zakończeniu studenta wyjście z pętli
