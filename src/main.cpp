@@ -134,9 +134,10 @@ int main() {
         }
 
         else if (mode == 2) {
-            // ====== STUDENT MODE ======
+
             int studentIndex = -1;
 
+             while (studentIndex == -1) {
             std::cout << "\n1. Log in\n2. Create library account\nChoice: ";
             int loginChoice;
             std::cin >> loginChoice;
@@ -182,7 +183,7 @@ int main() {
                 return 0;
             }
 
-            // ====== STUDENT MENU ======
+
             do {
                 std::cout << "\n--- STUDENT MENU ---\n";
                 std::cout << "1. Borrow a Book"
