@@ -1,5 +1,6 @@
 #include <iostream>
-#include "Library.hpp"
+#include <string> // Konieczne dla std::getline
+#include "../include/Library.hpp" // Zakładamy strukturę folderów src/ i include/
 
 int main() {
     Library lib;
@@ -10,10 +11,9 @@ int main() {
     std::cout << "1. Administrator\n2. Student\nChoose mode: ";
     std::cin >> mode;
 
-    int choice;
-
     if (mode == 1) {
         // =================== ADMIN MENU ===================
+        int choice;
         do {
             std::cout << "\n--- ADMIN MENU ---\n";
             std::cout << "1. Add Book\n2. Add Student\n3. Borrow a Book\n4. Return Book\n5. Generate Report\n6. Exit\nChoice: ";
@@ -32,12 +32,10 @@ int main() {
                     std::cin >> isbn;
                     std::cout << "Year: ";
                     std::cin >> year;
-
                     lib.books[lib.bookCount++] = Book(title, author, isbn, year);
                     std::cout << "[OK] Book added.\n";
                     break;
                 }
-
                 case 2: {
                     std::string first, last, address;
                     int id;
@@ -50,12 +48,10 @@ int main() {
                     std::getline(std::cin, address);
                     std::cout << "Student ID: ";
                     std::cin >> id;
-
                     lib.students[lib.studentCount++] = Student(first, last, id, address);
                     std::cout << "[OK] Student added.\n";
                     break;
                 }
-
                 case 3: {
                     int isbn, studentId, studentIndex = -1;
                     std::cout << "Student ID: ";
@@ -70,7 +66,6 @@ int main() {
                         std::cout << "[ERROR] Student not found.\n";
                         break;
                     }
-
                     std::cout << "ISBN of the book: ";
                     std::cin >> isbn;
                     bool foundBook = false;
@@ -81,69 +76,55 @@ int main() {
                                 lib.books[i].borrowerId = lib.students[studentIndex].id;
                                 std::cout << "[OK] Book borrowed.\n";
                             } else {
-                                std::cout << "[ERROR] Student has reached the limit of 3 books.\n";
+                                std::cout << "[ERROR] Student limit reached.\n";
                             }
                             foundBook = true;
                             break;
                         }
                     }
-                    if (!foundBook) std::cout << "[ERROR] No available book found.\n";
+                    if (!foundBook) std::cout << "[ERROR] Book unavailable or not found.\n";
                     break;
                 }
-
                 case 4: {
-                    int isbn, studentId, studentIndex = -1;
-                    std::cout << "Student ID: ";
-                    std::cin >> studentId;
-                    for (int i = 0; i < lib.studentCount; i++) {
-                        if (lib.students[i].id == studentId) {
-                            studentIndex = i;
-                            break;
-                        }
-                    }
-                    if (studentIndex == -1) {
-                        std::cout << "[ERROR] Student not found.\n";
-                        break;
+                    int isbn, studentId;
+                    std::cout << "Student ID: "; std::cin >> studentId;
+                    std::cout << "ISBN to return: "; std::cin >> isbn;
+                    
+                    // Szukamy studenta
+                    int sIdx = -1;
+                    for(int i=0; i<lib.studentCount; i++) {
+                        if(lib.students[i].id == studentId) { sIdx = i; break; }
                     }
 
-                    std::cout << "ISBN of the book to return: ";
-                    std::cin >> isbn;
-                    bool returned = lib.students[studentIndex].returnBook(isbn);
-                    if (returned) {
-                        bool bookFound = false;
-                        for (int i = 0; i < lib.bookCount; i++) {
-                            if (lib.books[i].isbn == isbn && lib.books[i].borrowerId == lib.students[studentIndex].id) {
-                                lib.books[i].returnBook();
-                                bookFound = true;
-                                break;
-                            }
+                    if (sIdx != -1) {
+                        if(lib.students[sIdx].returnBook(isbn)) {
+                             for(int i=0; i<lib.bookCount; i++) {
+                                 if(lib.books[i].isbn == isbn) {
+                                     lib.books[i].returnBook();
+                                     break;
+                                 }
+                             }
+                             std::cout << "[OK] Book returned.\n";
+                        } else {
+                            std::cout << "[ERROR] Student does not have this book.\n";
                         }
-                        if (bookFound)
-                            std::cout << "[OK] Book returned.\n";
-                        else
-                            std::cout << "[ERROR] Book not found in library records.\n";
                     } else {
-                        std::cout << "[ERROR] Student didn’t borrow this book.\n";
+                        std::cout << "[ERROR] Student not found.\n";
                     }
                     break;
                 }
-
                 case 5:
                     lib.generateReport();
                     break;
-
                 case 6:
                     lib.saveData();
                     std::cout << "[INFO] Data saved. Goodbye!\n";
                     break;
-
                 default:
                     std::cout << "[!] Incorrect selection.\n";
             }
-
         } while (choice != 6);
     }
-
     else if (mode == 2) {
         // =================== STUDENT LOGIN ===================
         int studentIndex = -1;
@@ -163,143 +144,99 @@ int main() {
                     }
                 }
                 if (studentIndex == -1) {
-                    std::cout << "[ERROR] No account found for this ID. Try again.\n";
-                    continue; // powrót do logowania
+                    std::cout << "[ERROR] No account found. Try again.\n";
+                } else {
+                    std::cout << "[OK] Welcome, " << lib.students[studentIndex].firstName << "!\n";
                 }
-                std::cout << "[OK] Welcome, " << lib.students[studentIndex].firstName
-                          << " " << lib.students[studentIndex].lastName << "!\n";
-            }
-
-            else if (loginChoice == 2) {
+            } else if (loginChoice == 2) {
                 std::string first, last, address;
-                std::cout << "Name: ";
-                std::cin.ignore();
-                std::getline(std::cin, first);
-                std::cout << "Surname: ";
-                std::getline(std::cin, last);
-                std::cout << "Address: ";
-                std::getline(std::cin, address);
-
+                std::cout << "Name: "; std::cin.ignore(); std::getline(std::cin, first);
+                std::cout << "Surname: "; std::getline(std::cin, last);
+                std::cout << "Address: "; std::getline(std::cin, address);
                 int newId = 1000 + lib.studentCount;
                 lib.students[lib.studentCount++] = Student(first, last, newId, address);
                 studentIndex = lib.studentCount - 1;
-
-                std::cout << "[OK] Account created! Your student ID is: " << newId << "\n";
-            }
-
-            else {
-                std::cout << "[!] Invalid choice.\n";
-                continue;
+                std::cout << "[OK] Account created! Your ID: " << newId << "\n";
+            } else {
+                return 0;
             }
         }
 
         // =================== STUDENT MENU ===================
-            do {
-                std::cout << "\n--- STUDENT MENU ---\n";
-                std::cout << "1. Borrow a Book"
-                          << "\n2. Return Book"
-                          << "\n3. Check My Account"
-                          << "\n4. Search (Author)"
-                          << "\n5. Search (Title)"
-                          << "\n6. Exit"
-                          << "\nChoice: ";
-                std::cin >> choice;
+        int choice;
+        do {
+            std::cout << "\n--- STUDENT MENU ---\n";
+            std::cout << "1. Borrow a Book\n2. Return Book\n3. Check My Account\n4. Search (Author)\n5. Search (Title)\n6. Exit\nChoice: ";
+            std::cin >> choice;
 
-                switch (choice) {
-                    case 1: {
-                        int isbn;
-                        std::cout << "ISBN of the book: ";
-                        std::cin >> isbn;
-
-                        bool foundBook = false;
+            switch (choice) {
+                case 1: { 
+                    int isbn;
+                    std::cout << "ISBN: "; std::cin >> isbn;
+                    bool found = false;
+                    for (int i = 0; i < lib.bookCount; i++) {
+                        if (lib.books[i].isbn == isbn && !lib.books[i].isBorrowed) {
+                            if (lib.students[studentIndex].borrowBook(isbn)) {
+                                lib.books[i].borrow();
+                                lib.books[i].borrowerId = lib.students[studentIndex].id;
+                                std::cout << "[OK] Book borrowed.\n";
+                            } else std::cout << "[ERROR] Limit reached.\n";
+                            found = true; break;
+                        }
+                    }
+                    if (!found) std::cout << "[ERROR] Book unavailable.\n";
+                    break;
+                }
+                case 2: { 
+                    int isbn;
+                    std::cout << "ISBN to return: "; std::cin >> isbn;
+                    if (lib.students[studentIndex].returnBook(isbn)) {
                         for (int i = 0; i < lib.bookCount; i++) {
-                            if (lib.books[i].isbn == isbn && !lib.books[i].isBorrowed) {
-                                if (lib.students[studentIndex].borrowBook(isbn)) {
-                                    lib.books[i].borrow();
-                                    lib.books[i].borrowerId = lib.students[studentIndex].id;
-                                    std::cout << "[OK] Book borrowed.\n";
-                                } else {
-                                    std::cout << "[ERROR] You have reached the limit of 3 books.\n";
-                                }
-                                foundBook = true;
+                            if (lib.books[i].isbn == isbn) {
+                                lib.books[i].returnBook();
                                 break;
                             }
                         }
-                        if (!foundBook) std::cout << "[ERROR] No available book found.\n";
-                        break;
-                    }
-
-                    case 2: {
-                        int isbn;
-                        std::cout << "ISBN of the book to return: ";
-                        std::cin >> isbn;
-
-                        bool returned = lib.students[studentIndex].returnBook(isbn);
-                        if (returned) {
-                            for (int i = 0; i < lib.bookCount; i++) {
-                                if (lib.books[i].isbn == isbn) {
-                                    lib.books[i].returnBook();
-                                    break;
-                                }
-                            }
-                            std::cout << "[OK] Book returned.\n";
-                        } else {
-                            std::cout << "[ERROR] You didn’t borrow this book.\n";
-                        }
-                        break;
-                    }
-                    case 3: {
-                        int sID; std::cout << "Enter ID: "; cin >> sID;
-                        bool found = false;
-                        for(int i=0; i<lib.studentCount; i++) {
-                            if(lib.students[i].id == sID) {
-                                Person* personPtr = &lib.students[i];
-                                personPtr->introduce(); 
-                                
-                                lib.students[i].showAccount();
-                                found = true;
-                                break;
-                            }
-                    }
+                        std::cout << "[OK] Returned.\n";
+                    } else std::cout << "[ERROR] You don't have this book.\n";
+                    break;
                 }
-                case 4: {
-                    std::string a; 
-                    std::cout << "Enter author: "; cin.ignore(); getline(cin, a);
-                    for(int i=0; i<lib.bookCount; i++) {
-                        if(lib.books[i].author == a) std::cout << "- " << lib.books[i].title << endl;
+                case 3: { 
+                    Person* personPtr = &lib.students[studentIndex];
+                    std::cout << "\n--- Account Details ---\n";
+                    personPtr->introduce();
+                    lib.students[studentIndex].showAccount();
+                    break;
+                }
+                case 4: { 
+                    std::string a;
+                    std::cout << "Enter author: "; std::cin.ignore(); std::getline(std::cin, a);
+                    for (int i = 0; i < lib.bookCount; i++) {
+                        if (lib.books[i].author.find(a) != std::string::npos) 
+                            std::cout << "- " << lib.books[i].title << " (ISBN: " << lib.books[i].isbn << ")\n";
                     }
                     break;
                 }
-                case 5: {
+                case 5: { 
                     std::string t;
-                    std::cout << "Enter title: "; cin.ignore(); getline(cin, t);
-                    for(int i=0; i<lib.bookCount; i++) {
-                         if(lib.books[i].title.find(t) != string::npos) 
-                            std::cout << "- " << lib.books[i].title << " (" << lib.books[i].author << ")\n";
+                    std::cout << "Enter title: "; std::cin.ignore(); std::getline(std::cin, t);
+                    for (int i = 0; i < lib.bookCount; i++) {
+                        if (lib.books[i].title.find(t) != std::string::npos) 
+                             std::cout << "- " << lib.books[i].title << " (" << lib.books[i].author << ")\n";
                     }
                     break;
                 }
-
-                    case 6:
-                        std::cout << "[INFO] Goodbye!\n";
-                        break;
-
-                    default:
-                        std::cout << "[!] Incorrect selection.\n";
-                }
-                if(!found) std::cout << "Student not found.\n";
+                case 6:
+                    lib.saveData();
+                    std::cout << "[INFO] Goodbye!\n";
                     break;
-
-            } while (choice != 6);
-
-            lib.saveData();
-            break; // po zakończeniu studenta wyjście z pętli
-        }
-
-        else {
-            std::cout << "[ERROR] Invalid mode selected!\n";
-            break;
-        }
+                default:
+                    std::cout << "[!] Invalid choice.\n";
+            }
+        } while (choice != 6);
+    } else {
+        std::cout << "[ERROR] Invalid mode!\n";
+    }
 
     return 0;
 }
