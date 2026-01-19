@@ -5,8 +5,8 @@
 
 class Library {
 public:
-    static const int MAX_BOOKS = 100; //wartosc globalna dla wszystkich studentow np
-    static const int MAX_STUDENTS = 100;
+    static const int MAX_BOOKS = 15; //wartosc globalna dla wszystkich studentow np
+    static const int MAX_STUDENTS = 5;
 
     Book books[MAX_BOOKS];
     Student students[MAX_STUDENTS];
