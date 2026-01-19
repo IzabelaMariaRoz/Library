@@ -1,6 +1,6 @@
 #include <iostream>
-#include <string> // Konieczne dla std::getline
-#include "../include/Library.hpp" // Zakładamy strukturę folderów src/ i include/
+#include <string>
+#include "../include/Library.hpp"
 
 int main() {
     Library lib;
@@ -46,8 +46,24 @@ int main() {
                     std::getline(std::cin, last);
                     std::cout << "Address: ";
                     std::getline(std::cin, address);
-                    std::cout << "Student ID: ";
-                    std::cin >> id;
+                    
+                    // --- NOWA FUNKCJONALNOŚĆ: Sprawdzanie unikalności ID ---
+                    bool isUnique = false;
+                    do {
+                        std::cout << "Student ID: ";
+                        std::cin >> id;
+                        
+                        isUnique = true; 
+                        for(int i = 0; i < lib.studentCount; i++) {
+                            if(lib.students[i].id == id) {
+                                std::cout << "[ERROR] ID " << id << " already exists! Try another.\n";
+                                isUnique = false;
+                                break;
+                            }
+                        }
+                    } while (!isUnique);
+                    // -------------------------------------------------------
+
                     lib.students[lib.studentCount++] = Student(first, last, id, address);
                     std::cout << "[OK] Student added.\n";
                     break;
@@ -90,7 +106,6 @@ int main() {
                     std::cout << "Student ID: "; std::cin >> studentId;
                     std::cout << "ISBN to return: "; std::cin >> isbn;
                     
-                    // Szukamy studenta
                     int sIdx = -1;
                     for(int i=0; i<lib.studentCount; i++) {
                         if(lib.students[i].id == studentId) { sIdx = i; break; }
@@ -153,7 +168,22 @@ int main() {
                 std::cout << "Name: "; std::cin.ignore(); std::getline(std::cin, first);
                 std::cout << "Surname: "; std::getline(std::cin, last);
                 std::cout << "Address: "; std::getline(std::cin, address);
+                
                 int newId = 1000 + lib.studentCount;
+                bool idExists = true;
+
+                while (idExists) {
+                    idExists = false;
+                    for(int i = 0; i < lib.studentCount; i++) {
+                        if (lib.students[i].id == newId) {
+                            newId++;     
+                            idExists = true; 
+                            break;
+                        }
+                    }
+                }
+                // ------------------------------------------------------
+
                 lib.students[lib.studentCount++] = Student(first, last, newId, address);
                 studentIndex = lib.studentCount - 1;
                 std::cout << "[OK] Account created! Your ID: " << newId << "\n";
