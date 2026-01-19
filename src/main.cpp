@@ -194,75 +194,112 @@ int main() {
         }
 
         // =================== STUDENT MENU ===================
-        do {
-            std::cout << "\n--- STUDENT MENU ---\n";
-            std::cout << "1. Borrow a Book\n2. Return Book\n3. Exit\nChoice: ";
-            std::cin >> choice;
+            do {
+                std::cout << "\n--- STUDENT MENU ---\n";
+                std::cout << "1. Borrow a Book"
+                          << "\n2. Return Book"
+                          << "\n3. Check My Account"
+                          << "\n4. Search (Author)"
+                          << "\n5. Search (Title)"
+                          << "\n6. Exit"
+                          << "\nChoice: ";
+                std::cin >> choice;
 
-            switch (choice) {
-                case 1: {
-                    int isbn;
-                    std::cout << "ISBN of the book: ";
-                    std::cin >> isbn;
+                switch (choice) {
+                    case 1: {
+                        int isbn;
+                        std::cout << "ISBN of the book: ";
+                        std::cin >> isbn;
 
-                    bool foundBook = false;
-                    for (int i = 0; i < lib.bookCount; i++) {
-                        if (lib.books[i].isbn == isbn && !lib.books[i].isBorrowed) {
-                            if (lib.students[studentIndex].borrowBook(isbn)) {
-                                lib.books[i].borrow();
-                                lib.books[i].borrowerId = lib.students[studentIndex].id;
-                                std::cout << "[OK] Book borrowed.\n";
-                            } else {
-                                std::cout << "[ERROR] You have reached the limit of 3 books.\n";
-                            }
-                            foundBook = true;
-                            break;
-                        }
-                    }
-                    if (!foundBook) std::cout << "[ERROR] No available book found.\n";
-                    break;
-                }
-
-                case 2: {
-                    int isbn;
-                    std::cout << "ISBN of the book to return: ";
-                    std::cin >> isbn;
-
-                    bool returned = lib.students[studentIndex].returnBook(isbn);
-                    if (returned) {
-                        bool bookFound = false;
+                        bool foundBook = false;
                         for (int i = 0; i < lib.bookCount; i++) {
-                            if (lib.books[i].isbn == isbn && lib.books[i].borrowerId == lib.students[studentIndex].id) {
-                                lib.books[i].returnBook();
-                                bookFound = true;
+                            if (lib.books[i].isbn == isbn && !lib.books[i].isBorrowed) {
+                                if (lib.students[studentIndex].borrowBook(isbn)) {
+                                    lib.books[i].borrow();
+                                    lib.books[i].borrowerId = lib.students[studentIndex].id;
+                                    std::cout << "[OK] Book borrowed.\n";
+                                } else {
+                                    std::cout << "[ERROR] You have reached the limit of 3 books.\n";
+                                }
+                                foundBook = true;
                                 break;
                             }
                         }
-                        if (bookFound)
+                        if (!foundBook) std::cout << "[ERROR] No available book found.\n";
+                        break;
+                    }
+
+                    case 2: {
+                        int isbn;
+                        std::cout << "ISBN of the book to return: ";
+                        std::cin >> isbn;
+
+                        bool returned = lib.students[studentIndex].returnBook(isbn);
+                        if (returned) {
+                            for (int i = 0; i < lib.bookCount; i++) {
+                                if (lib.books[i].isbn == isbn) {
+                                    lib.books[i].returnBook();
+                                    break;
+                                }
+                            }
                             std::cout << "[OK] Book returned.\n";
-                        else
-                            std::cout << "[ERROR] Book not found in library records.\n";
-                    } else {
-                        std::cout << "[ERROR] You didn’t borrow this book.\n";
+                        } else {
+                            std::cout << "[ERROR] You didn’t borrow this book.\n";
+                        }
+                        break;
+                    }
+                    case 3: {
+                        int sID; std::cout << "Enter ID: "; cin >> sID;
+                        bool found = false;
+                        for(int i=0; i<lib.studentCount; i++) {
+                            if(lib.students[i].id == sID) {
+                                Person* personPtr = &lib.students[i];
+                                personPtr->introduce(); 
+                                
+                                lib.students[i].showAccount();
+                                found = true;
+                                break;
+                            }
+                    }
+                }
+                case 4: {
+                    std::string a; 
+                    std::cout << "Enter author: "; cin.ignore(); getline(cin, a);
+                    for(int i=0; i<lib.bookCount; i++) {
+                        if(lib.books[i].author == a) std::cout << "- " << lib.books[i].title << endl;
+                    }
+                    break;
+                }
+                case 5: {
+                    std::string t;
+                    std::cout << "Enter title: "; cin.ignore(); getline(cin, t);
+                    for(int i=0; i<lib.bookCount; i++) {
+                         if(lib.books[i].title.find(t) != string::npos) 
+                            std::cout << "- " << lib.books[i].title << " (" << lib.books[i].author << ")\n";
                     }
                     break;
                 }
 
-                case 3:
-                    std::cout << "[INFO] Goodbye!\n";
-                    lib.saveData();
+                    case 6:
+                        std::cout << "[INFO] Goodbye!\n";
+                        break;
+
+                    default:
+                        std::cout << "[!] Incorrect selection.\n";
+                }
+                if(!found) std::cout << "Student not found.\n";
                     break;
 
-                default:
-                    std::cout << "[!] Incorrect selection.\n";
-            }
+            } while (choice != 6);
 
-        } while (choice != 3);
-    }
+            lib.saveData();
+            break; // po zakończeniu studenta wyjście z pętli
+        }
 
-    else {
-        std::cout << "[ERROR] Invalid mode selected!\n";
-    }
+        else {
+            std::cout << "[ERROR] Invalid mode selected!\n";
+            break;
+        }
 
     return 0;
 }
