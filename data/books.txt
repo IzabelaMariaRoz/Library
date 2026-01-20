@@ -1,4 +1,4 @@
-123456;Lalka;Bolesław Prus;1889;0;0
+123456;Lalka;Bolesław Prus;1889;1;1234
 987654;Ogniem i Mieczem;Henryk Sienkiewicz;1884;1;1234
 567890;Romeo i Julia;William Shakespeare;1597;0;0
 234789;Zbrodnia i Kara;Fiodor Dostojewski;1866;0;0

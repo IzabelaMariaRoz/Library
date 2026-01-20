@@ -3,7 +3,7 @@
 #include "../include/Library.hpp"
 
 int main() {
-    Library lib;
+    Library lib;        //tworzenie obiekt. klasy
     lib.loadData();
 
     std::cout << "--- LIBRARY SYSTEM ---\n";
@@ -12,7 +12,7 @@ int main() {
     std::cin >> mode;
 
     if (mode == 1) {
-        // =================== ADMIN MENU ===================
+
         int choice;
         do {
             std::cout << "\n--- ADMIN MENU ---\n";
@@ -79,7 +79,7 @@ int main() {
         } while (choice != 4);
     }
     else if (mode == 2) {
-        // =================== STUDENT LOGIN ===================
+                                    //  STUDENT LOGIN
         int studentIndex = -1;
         while (studentIndex == -1) {
             std::cout << "\n1. Log in\n2. Create library account\nChoice: ";
@@ -129,7 +129,7 @@ int main() {
             }
         }
 
-        // =================== STUDENT MENU ===================
+
         int choice;
         do {
             std::cout << "\n--- STUDENT MENU ---\n";

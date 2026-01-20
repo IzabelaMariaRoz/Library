@@ -5,19 +5,19 @@ Student::Student() {
     for (int i = 0; i < 3; i++) borrowedISBNs[i] = 0;
 }
 
-Student::Student(const std::string& f, const std::string& l, int id, const std::string& address)
-    : Person(f, l), id(id), address(address), borrowedCount(0)
+Student::Student(const std::string& f, const std::string& l, int id, const std::string& address) //konst.
+    : Person(f, l), id(id), address(address), borrowedCount(0) //dziedz. po Person
 {
     for (int i = 0; i < 3; i++) borrowedISBNs[i] = 0;
 }
 
-void Student::introduce() {
+void Student::introduce() {  //nadpisowanie metody
     std::cout << "I am a student: " << firstName << " " << lastName
               << " (ID: " << id << ")" << std::endl;
 }
 
 //dodaje na koncu tablicy borrowedISBNs isbn ksiazki do wypozyczenia
-bool Student::borrowBook(int isbn) {
+bool Student::borrowBook(int isbn) {  //def. metody borrowBook należącej do klasy Student
     if (borrowedCount < 3) {
         borrowedISBNs[borrowedCount++] = isbn;
         return true;

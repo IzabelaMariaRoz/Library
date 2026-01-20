@@ -13,7 +13,7 @@ public:
     Student(const std::string& f, const std::string& l, int id, const std::string& address);
 
     void introduce() override;
-    bool borrowBook(int isbn);
+    bool borrowBook(int isbn);       //dek. metod (abstrakcyjna)
     bool returnBook(int isbn);
     void showAccount();
 };

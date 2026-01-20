@@ -4,7 +4,7 @@
 
 Library::Library() : bookCount(0), studentCount(0) {}
 
-void Library::saveData() {
+void Library::saveData() { //wywoł. metoda statyczna
     std::ofstream bookFile("data/books.txt");
     for(int i=0;i<bookCount;i++) {
         bookFile << books[i].isbn << ";" << books[i].title << ";"
