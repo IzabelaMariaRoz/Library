@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 
+//kl. abst. bo istnieje metoda czysto wirtualna.
 class Person {
 public:
     std::string firstName;

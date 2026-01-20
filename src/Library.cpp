@@ -2,8 +2,12 @@
 #include <fstream>
 #include <iostream>
 
+// Konstruktor klasy Library
+// Inicjalizuje liczniki książek i studentów na 0
 Library::Library() : bookCount(0), studentCount(0) {}
 
+
+//Zapisuje dane do plików tekstowych
 void Library::saveData() { //wywoł. metoda statyczna
     std::ofstream bookFile("data/books.txt");
     for(int i=0;i<bookCount;i++) {
@@ -21,6 +25,11 @@ void Library::saveData() { //wywoł. metoda statyczna
     studentFile.close();
 }
 
+
+
+// Wczytuje dane z plików tekstowych do tablic w obiekcie Library
+// books.txt -> wczytuje wszystkie książki, aktualizuje bookCount
+// students.txt -> wczytuje wszystkich studentów, aktualizuje studentCount
 void Library::loadData() {
     std::ifstream bookFile("data/books.txt");
     if(bookFile.is_open()) {

@@ -13,7 +13,7 @@ public:
     int bookCount;
     int studentCount;
 
-    Library(); //konst
+    Library(); //deklaracja konst
 
     void saveData(); //metody
     void loadData();

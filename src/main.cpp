@@ -171,7 +171,7 @@ int main() {
                 case 3: { 
                     Person* personPtr = &lib.students[studentIndex];
                     std::cout << "\n--- Account Details ---\n";
-                    personPtr->introduce();
+                    personPtr->introduce();  //wywoływanie polimorfizmu
                     lib.students[studentIndex].showAccount();
                     break;
                 }
